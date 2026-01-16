@@ -4,19 +4,31 @@ let category = "";
 let count = { fearful: 0, normal: 0 };
 const minCount = 10;
 
-function setCategory(type) {
-  category = type;
-  document.getElementById("status").innerText =
-    "Selected category: " + type.toUpperCase() + 
-    ` (Recorded ${count[type]} times so far)`;
-  document.getElementById("message").innerText = "";
-}
-
 const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 const audio = document.getElementById("audio");
 const uploadBtn = document.getElementById("upload");
 const message = document.getElementById("message");
+const status = document.getElementById("status");
+const progressBar = document.getElementById("progress-bar");
+
+function setCategory(type) {
+  category = type;
+  updateStatus();
+  message.innerText = "";
+}
+
+function updateStatus() {
+  const current = count[category] || 0;
+  status.innerText =
+    "Selected category: " + category.toUpperCase() +
+    ` (Recorded ${current} times so far)`;
+
+  // Update progress bar
+  let progress = Math.min((current / minCount) * 100, 100);
+  progressBar.style.width = progress + "%";
+  progressBar.innerText = `${current} / ${minCount}`;
+}
 
 startBtn.onclick = async () => {
   if (!category) {
@@ -76,26 +88,24 @@ uploadBtn.onclick = async () => {
   try {
     await fetch("/upload", { method: "POST", body: formData });
 
-    count[category]++;
+    // Increase count
+    count[category] = (count[category] || 0) + 1;
+    updateStatus();
+
     message.innerText = `✅ Audio uploaded successfully! Total recordings for ${category}: ${count[category]}`;
     message.style.color = "green";
 
-    document.getElementById("status").innerText =
-      "Selected category: " + category.toUpperCase() +
-      ` (Recorded ${count[category]} times so far)`;
-
-    audioBlob = null;
-
-    // Suggest minimum if not reached
     if (count[category] < minCount) {
       message.innerText += `\n⚠ Please record at least ${minCount} times.`;
     }
 
+    audioBlob = null;
   } catch (err) {
     message.innerText = "⚠ Upload failed. Please try again!";
     message.style.color = "red";
     console.error(err);
   }
 };
+
 
 
