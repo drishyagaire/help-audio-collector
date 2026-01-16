@@ -2,13 +2,13 @@ let recorder;
 let audioBlob;
 let category = "";
 let count = { fearful: 0, normal: 0 };
-const maxCount = 10;
+const minCount = 10;
 
 function setCategory(type) {
   category = type;
   document.getElementById("status").innerText =
     "Selected category: " + type.toUpperCase() + 
-    ` (Recording ${count[type]}/${maxCount})`;
+    ` (Recorded ${count[type]} times so far)`;
   document.getElementById("message").innerText = "";
 }
 
@@ -22,12 +22,6 @@ startBtn.onclick = async () => {
   if (!category) {
     message.innerText = "⚠ Please select Fearful or Normal first!";
     message.style.color = "red";
-    return;
-  }
-
-  if (count[category] >= maxCount) {
-    message.innerText = `✅ You have completed ${maxCount} recordings for ${category}`;
-    message.style.color = "green";
     return;
   }
 
@@ -82,27 +76,26 @@ uploadBtn.onclick = async () => {
   try {
     await fetch("/upload", { method: "POST", body: formData });
 
-    message.innerText = "✅ Audio uploaded successfully! Thank you 🙏";
+    count[category]++;
+    message.innerText = `✅ Audio uploaded successfully! Total recordings for ${category}: ${count[category]}`;
     message.style.color = "green";
 
-    // Update count
-    count[category]++;
     document.getElementById("status").innerText =
-      "Selected category: " +
-      category.toUpperCase() +
-      ` (Recording ${count[category]}/${maxCount})`;
+      "Selected category: " + category.toUpperCase() +
+      ` (Recorded ${count[category]} times so far)`;
 
     audioBlob = null;
 
-    // Disable further upload if max reached
-    if (count[category] >= maxCount) {
-      message.innerText = `✅ You have completed ${maxCount} recordings for ${category}`;
-      message.style.color = "green";
+    // Suggest minimum if not reached
+    if (count[category] < minCount) {
+      message.innerText += `\n⚠ Please record at least ${minCount} times.`;
     }
+
   } catch (err) {
     message.innerText = "⚠ Upload failed. Please try again!";
     message.style.color = "red";
     console.error(err);
   }
 };
+
 
