@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audio Collection Portal</title>
+</head>
+<body>
+
+<h2>Help Audio Dataset Collection</h2>
+
+<p>Select how you will say <b>"HELP"</b>:</p>
+
+<button onclick="setCategory('fearful')">🔴 Fearful / Loud HELP</button>
+<button onclick="setCategory('normal')">🟢 Normal HELP</button>
+
+<p id="status"></p>
+
+<hr>
+
+<button id="start">🎙 Start Recording</button>
+<button id="stop" disabled>⏹ Stop Recording</button>
+
+<br><br>
+
+<audio id="audio" controls></audio>
+
+<br><br>
+
+<button id="upload">⬆ Upload Audio</button>
+
+<!-- TEST: inline JS -->
+<script>
+  alert("INLINE JS WORKS");
+</script>
+
+<!-- REAL JS FILE -->
+<script src="{{ url_for('static', filename='recorder.js') }}"></script>
+
+</body>
+</html>
