@@ -1,11 +1,15 @@
 let recorder;
 let audioBlob;
 let category = "";
+let count = { fearful: 0, normal: 0 };
+const maxCount = 10;
 
 function setCategory(type) {
   category = type;
   document.getElementById("status").innerText =
-    "Selected category: " + type.toUpperCase();
+    "Selected category: " + type.toUpperCase() + 
+    ` (Recording ${count[type]}/${maxCount})`;
+  document.getElementById("message").innerText = "";
 }
 
 const startBtn = document.getElementById("start");
@@ -21,26 +25,39 @@ startBtn.onclick = async () => {
     return;
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  recorder = new MediaRecorder(stream);
-  recorder.start();
+  if (count[category] >= maxCount) {
+    message.innerText = `✅ You have completed ${maxCount} recordings for ${category}`;
+    message.style.color = "green";
+    return;
+  }
 
-  let chunks = [];
-  recorder.ondataavailable = e => chunks.push(e.data);
-  recorder.onstop = () => {
-    audioBlob = new Blob(chunks, { type: "audio/wav" });
-    audio.src = URL.createObjectURL(audioBlob);
-  };
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    recorder.start();
 
-  message.innerText = "🎙 Recording... Speak now";
-  message.style.color = "blue";
+    let chunks = [];
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+      audioBlob = new Blob(chunks, { type: "audio/wav" });
+      audio.src = URL.createObjectURL(audioBlob);
+    };
 
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
+    message.innerText = "🎙 Recording... Speak now";
+    message.style.color = "blue";
+
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+  } catch (err) {
+    message.innerText =
+      "⚠ Microphone access failed. Please check browser permissions!";
+    message.style.color = "red";
+    console.error(err);
+  }
 };
 
 stopBtn.onclick = () => {
-  recorder.stop();
+  if (recorder) recorder.stop();
   startBtn.disabled = false;
   stopBtn.disabled = true;
 
@@ -62,13 +79,30 @@ uploadBtn.onclick = async () => {
   message.innerText = "⏳ Uploading audio...";
   message.style.color = "blue";
 
-  await fetch("/upload", {
-    method: "POST",
-    body: formData
-  });
+  try {
+    await fetch("/upload", { method: "POST", body: formData });
 
-  message.innerText = "✅ Audio uploaded successfully! Thank you 🙏";
-  message.style.color = "green";
+    message.innerText = "✅ Audio uploaded successfully! Thank you 🙏";
+    message.style.color = "green";
 
-  audioBlob = null;
+    // Update count
+    count[category]++;
+    document.getElementById("status").innerText =
+      "Selected category: " +
+      category.toUpperCase() +
+      ` (Recording ${count[category]}/${maxCount})`;
+
+    audioBlob = null;
+
+    // Disable further upload if max reached
+    if (count[category] >= maxCount) {
+      message.innerText = `✅ You have completed ${maxCount} recordings for ${category}`;
+      message.style.color = "green";
+    }
+  } catch (err) {
+    message.innerText = "⚠ Upload failed. Please try again!";
+    message.style.color = "red";
+    console.error(err);
+  }
 };
+
