@@ -1,5 +1,3 @@
-alert("JS LOADED");
-
 let recorder;
 let audioBlob;
 let category = "";
@@ -14,10 +12,12 @@ const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 const audio = document.getElementById("audio");
 const uploadBtn = document.getElementById("upload");
+const message = document.getElementById("message");
 
 startBtn.onclick = async () => {
   if (!category) {
-    alert("Please select Fearful or Normal first!");
+    message.innerText = "⚠ Please select Fearful or Normal first!";
+    message.style.color = "red";
     return;
   }
 
@@ -32,6 +32,9 @@ startBtn.onclick = async () => {
     audio.src = URL.createObjectURL(audioBlob);
   };
 
+  message.innerText = "🎙 Recording... Speak now";
+  message.style.color = "blue";
+
   startBtn.disabled = true;
   stopBtn.disabled = false;
 };
@@ -40,11 +43,15 @@ stopBtn.onclick = () => {
   recorder.stop();
   startBtn.disabled = false;
   stopBtn.disabled = true;
+
+  message.innerText = "🎧 Recording stopped. You can upload now.";
+  message.style.color = "green";
 };
 
 uploadBtn.onclick = async () => {
   if (!audioBlob) {
-    alert("Please record audio first!");
+    message.innerText = "⚠ Please record audio first!";
+    message.style.color = "red";
     return;
   }
 
@@ -52,11 +59,16 @@ uploadBtn.onclick = async () => {
   formData.append("audio", audioBlob);
   formData.append("category", category);
 
+  message.innerText = "⏳ Uploading audio...";
+  message.style.color = "blue";
+
   await fetch("/upload", {
     method: "POST",
     body: formData
   });
 
-  alert("Audio uploaded successfully!");
+  message.innerText = "✅ Audio uploaded successfully! Thank you 🙏";
+  message.style.color = "green";
+
+  audioBlob = null;
 };
-       
