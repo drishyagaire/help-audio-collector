@@ -1,30 +1,34 @@
 from flask import Flask, render_template, request
-import os
+import cloudinary
+import cloudinary.uploader
 from datetime import datetime
 
 app = Flask(__name__)
 
-BASE_DIR = "dataset"
-FEARFUL_DIR = os.path.join(BASE_DIR, "fearful")
-NORMAL_DIR = os.path.join(BASE_DIR, "normal")
-
-os.makedirs(FEARFUL_DIR, exist_ok=True)
-os.makedirs(NORMAL_DIR, exist_ok=True)
+# 🔐 Cloudinary config
+cloudinary.config(
+    cloud_name="df4nrz3qo",
+    api_key="198141117528798",
+    api_secret="2OplNhrRyiyVjLS62b7D3Wni07s"
+)
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
 @app.route("/upload", methods=["POST"])
-def upload():
+def upload_audio():
     audio = request.files["audio"]
     category = request.form["category"]
 
-    folder = FEARFUL_DIR if category == "fearful" else NORMAL_DIR
-    filename = f"help_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    filename = f"{category}_{timestamp}"
 
-    audio.save(os.path.join(folder, filename))
-    return "Saved"
+    cloudinary.uploader.upload(
+        audio,
+        resource_type="video",   # audio is treated as media
+        folder=f"help_dataset/{category}",
+        public_id=filename
+    )
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    return "Uploaded successfully"
