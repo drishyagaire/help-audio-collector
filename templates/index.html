@@ -70,6 +70,28 @@
       font-weight: bold;
       margin-top: 15px;
       font-size: 1rem;
+      white-space: pre-line; /* allows line breaks */
+    }
+
+    .progress-container {
+      width: 80%;
+      max-width: 500px;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin: 10px auto;
+      height: 25px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      border-radius: 10px;
+      text-align: center;
+      color: white;
+      line-height: 25px;
+      font-weight: bold;
+      transition: width 0.3s;
     }
   </style>
 </head>
@@ -82,7 +104,8 @@
   <ul style="text-align:left; max-width:500px; margin:auto;">
     <li>Say <b>"HELP"</b> or <b>"Bachau"</b> <b>normally</b> for the Normal section.</li>
     <li>Say <b>"HELP"</b> or <b>"Bachau"</b> <b>loudly with fear/emotion</b> for the Fearful section.</li>
-    <li>Record each section <b>10 times</b> by clicking <b>Start → Stop → Upload</b> for each repetition.</li>
+    <li>Record each section <b>at least 10 times</b> by clicking <b>Start → Stop → Upload</b> for each repetition.</li>
+    <li>You can record more than 10 if you want.</li>
     <li>Make sure your microphone is allowed when prompted.</li>
   </ul>
 </div>
@@ -92,6 +115,12 @@
 <button class="normal" onclick="setCategory('normal')">🟢 Normal</button>
 
 <p id="status"></p>
+
+<!-- Progress bar -->
+<div class="progress-container">
+  <div id="progress-bar" class="progress-bar">0 / 10</div>
+</div>
+
 <hr>
 
 <button id="start">🎙 Start Recording</button>
@@ -103,7 +132,7 @@
 
 <button id="upload">⬆ Upload Audio</button>
 
-<!-- Message area for uploads -->
+<!-- Message area -->
 <p id="message"></p>
 
 <!-- JS file -->
@@ -111,3 +140,4 @@
 
 </body>
 </html>
+
