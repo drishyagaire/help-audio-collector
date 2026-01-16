@@ -1,16 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Audio Collection Portal</title>
+  <title>Help Audio Dataset Collection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      color: #333;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #ff4500;
+      font-size: 2rem;
+    }
+
+    .instructions {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 15px;
+      margin: 15px auto;
+      max-width: 600px;
+      border-radius: 8px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    button {
+      padding: 12px 25px;
+      margin: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+
+    .fearful {
+      background-color: #ff4c4c;
+      color: white;
+    }
+
+    .normal {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #start, #stop, #upload {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #start:disabled, #stop:disabled, #upload:disabled {
+      background-color: #b0c4de;
+      cursor: not-allowed;
+    }
+
+    audio {
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
 
 <h2>Help Audio Dataset Collection</h2>
 
+<div class="instructions">
+  <p><b>Instructions:</b></p>
+  <ul style="text-align:left; max-width:500px; margin:auto;">
+    <li>Say "HELP" <b>normally</b> (as you would in daily life) for the Normal section.</li>
+    <li>Say "HELP" <b>loudly with fear/emotion</b> for the Fearful section.</li>
+    <li>Record each section <b>10 times</b> by clicking Start → Stop → Upload for each repetition.</li>
+    <li>Make sure your microphone is allowed when prompted.</li>
+  </ul>
+</div>
+
 <p>Select how you will say <b>"HELP"</b>:</p>
 
-<button onclick="setCategory('fearful')">🔴 Fearful / Loud HELP</button>
-<button onclick="setCategory('normal')">🟢 Normal HELP</button>
+<button class="fearful" onclick="setCategory('fearful')">🔴 Fearful / Loud HELP</button>
+<button class="normal" onclick="setCategory('normal')">🟢 Normal HELP</button>
 
 <p id="status"></p>
 
@@ -32,8 +106,8 @@
   alert("INLINE JS WORKS");
 </script>
 
-<!-- REAL JS FILE -->
 <script src="{{ url_for('static', filename='recorder.js') }}"></script>
 
 </body>
 </html>
+
