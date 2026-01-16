@@ -65,6 +65,12 @@
     audio {
       margin-top: 15px;
     }
+
+    #message {
+      font-weight: bold;
+      margin-top: 15px;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -74,40 +80,34 @@
 <div class="instructions">
   <p><b>Instructions:</b></p>
   <ul style="text-align:left; max-width:500px; margin:auto;">
-    <li>Say "HELP" <b>normally</b> (as you would in daily life) for the Normal section.</li>
-    <li>Say "HELP" <b>loudly with fear/emotion</b> for the Fearful section.</li>
-    <li>Record each section <b>10 times</b> by clicking Start → Stop → Upload for each repetition.</li>
+    <li>Say <b>"HELP"</b> or <b>"Bachau"</b> <b>normally</b> for the Normal section.</li>
+    <li>Say <b>"HELP"</b> or <b>"Bachau"</b> <b>loudly with fear/emotion</b> for the Fearful section.</li>
+    <li>Record each section <b>10 times</b> by clicking <b>Start → Stop → Upload</b> for each repetition.</li>
     <li>Make sure your microphone is allowed when prompted.</li>
   </ul>
 </div>
 
-<p>Select how you will say <b>"HELP"</b>:</p>
-
-<button class="fearful" onclick="setCategory('fearful')">🔴 Fearful / Loud HELP</button>
-<button class="normal" onclick="setCategory('normal')">🟢 Normal HELP</button>
+<p>Select how you will say your words:</p>
+<button class="fearful" onclick="setCategory('fearful')">🔴 Fearful / Loud</button>
+<button class="normal" onclick="setCategory('normal')">🟢 Normal</button>
 
 <p id="status"></p>
-
 <hr>
 
 <button id="start">🎙 Start Recording</button>
 <button id="stop" disabled>⏹ Stop Recording</button>
-
 <br><br>
 
 <audio id="audio" controls></audio>
-
 <br><br>
 
 <button id="upload">⬆ Upload Audio</button>
 
-<!-- TEST: inline JS -->
-<script>
-  alert("INLINE JS WORKS");
-</script>
+<!-- Message area for uploads -->
+<p id="message"></p>
 
+<!-- JS file -->
 <script src="{{ url_for('static', filename='recorder.js') }}"></script>
 
 </body>
 </html>
-
