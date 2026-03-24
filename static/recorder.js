@@ -1,80 +1,50 @@
+alert("JS LOADED");
+
 let recorder;
 let audioBlob;
 let category = "";
-let count = { fearful: 0, normal: 0 };
-const minCount = 10;
+
+function setCategory(type) {
+  category = type;
+  document.getElementById("status").innerText =
+    "Selected category: " + type.toUpperCase();
+}
 
 const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 const audio = document.getElementById("audio");
 const uploadBtn = document.getElementById("upload");
-const message = document.getElementById("message");
-const status = document.getElementById("status");
-const progressBar = document.getElementById("progress-bar");
-
-function setCategory(type) {
-  category = type;
-  updateStatus();
-  message.innerText = "";
-}
-
-function updateStatus() {
-  const current = count[category] || 0;
-  status.innerText =
-    "Selected category: " + category.toUpperCase() +
-    ` (Recorded ${current} times so far)`;
-
-  // Update progress bar
-  let progress = Math.min((current / minCount) * 100, 100);
-  progressBar.style.width = progress + "%";
-  progressBar.innerText = `${current} / ${minCount}`;
-}
 
 startBtn.onclick = async () => {
   if (!category) {
-    message.innerText = "⚠ Please select Fearful or Normal first!";
-    message.style.color = "red";
+    alert("Please select Fearful or Normal first!");
     return;
   }
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    recorder = new MediaRecorder(stream);
-    recorder.start();
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  recorder = new MediaRecorder(stream);
+  recorder.start();
 
-    let chunks = [];
-    recorder.ondataavailable = e => chunks.push(e.data);
-    recorder.onstop = () => {
-      audioBlob = new Blob(chunks, { type: "audio/wav" });
-      audio.src = URL.createObjectURL(audioBlob);
-    };
+  let chunks = [];
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    audioBlob = new Blob(chunks, { type: "audio/wav" });
+    audio.src = URL.createObjectURL(audioBlob);
+  };
 
-    message.innerText = "🎙 Recording... Speak now";
-    message.style.color = "blue";
-
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-  } catch (err) {
-    message.innerText =
-      "⚠ Microphone access failed. Please check browser permissions!";
-    message.style.color = "red";
-    console.error(err);
-  }
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
 };
 
 stopBtn.onclick = () => {
-  if (recorder) recorder.stop();
+  recorder.stop();
   startBtn.disabled = false;
   stopBtn.disabled = true;
-
-  message.innerText = "🎧 Recording stopped. You can upload now.";
-  message.style.color = "green";
 };
 
 uploadBtn.onclick = async () => {
   if (!audioBlob) {
-    message.innerText = "⚠ Please record audio first!";
-    message.style.color = "red";
+    alert("Please record audio first!");
     return;
   }
 
@@ -82,30 +52,11 @@ uploadBtn.onclick = async () => {
   formData.append("audio", audioBlob);
   formData.append("category", category);
 
-  message.innerText = "⏳ Uploading audio...";
-  message.style.color = "blue";
+  await fetch("/upload", {
+    method: "POST",
+    body: formData
+  });
 
-  try {
-    await fetch("/upload", { method: "POST", body: formData });
-
-    // Increase count
-    count[category] = (count[category] || 0) + 1;
-    updateStatus();
-
-    message.innerText = `✅ Audio uploaded successfully! Total recordings for ${category}: ${count[category]}`;
-    message.style.color = "green";
-
-    if (count[category] < minCount) {
-      message.innerText += `\n⚠ Please record at least ${minCount} times.`;
-    }
-
-    audioBlob = null;
-  } catch (err) {
-    message.innerText = "⚠ Upload failed. Please try again!";
-    message.style.color = "red";
-    console.error(err);
-  }
+  alert("Audio uploaded successfully!");
 };
-
-
-
+       
