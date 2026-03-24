@@ -6,14 +6,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# ✅ Cloudinary config (use Render environment variables)
 cloudinary.config(
-    cloud_name=os.getenv("CLOUD_NAME"),
-    api_key=os.getenv("API_KEY"),
-    api_secret=os.getenv("API_SECRET")
+    cloud_name=os.getenv("df4nrz3qo"),
+    api_key=os.getenv("198141117528798"),
+    api_secret=os.getenv("2OplNhrRyiyVjLS62b7D3Wni07s")
 )
 
-# ✅ 7 emotion categories
 CATEGORIES = ["angry", "disgust", "fear", "happy", "sad", "neutral", "surprise"]
 
 @app.route("/")
@@ -28,19 +26,16 @@ def upload():
 
         if not audio:
             return jsonify({"error": "No audio file"}), 400
-
         if not category:
             return jsonify({"error": "No category selected"}), 400
-
         if category not in CATEGORIES:
             return jsonify({"error": "Invalid category"}), 400
 
         filename = f"{category}_help_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        # ✅ Upload to Cloudinary
         result = cloudinary.uploader.upload(
             audio,
-            resource_type="video",  # IMPORTANT for audio
+            resource_type="video",
             folder=f"help_dataset/{category}",
             public_id=filename
         )
@@ -49,10 +44,9 @@ def upload():
             "message": "Uploaded successfully",
             "url": result.get("secure_url")
         })
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
