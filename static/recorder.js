@@ -1,60 +1,100 @@
-from flask import Flask, render_template, request, jsonify
-import cloudinary
-import cloudinary.uploader
-from datetime import datetime
-import os
+alert("Recorder JS Loaded!"); // optional, you can remove later
 
-app = Flask(__name__)
+let recorder;
+let audioBlob;
+let category = "";
 
-# ===================== CLOUDINARY CONFIG =====================
-cloudinary.config(
-    cloud_name="df4nrz3qo",
-    api_key="198141117528798",
-    api_secret="2OplNhrRyiyVjLS62b7D3Wni07s"
-)
+// ====== Set category when a button is clicked ======
+function setCategory(type) {
+  category = type;
+  document.getElementById("status").innerText =
+    "Selected emotion: " + type.toUpperCase();
+}
 
-# ===================== AUDIO CATEGORIES =====================
-CATEGORIES = ["angry", "disgust", "fear", "happy", "sad", "neutral", "surprise"]
+// ====== Get buttons and audio element ======
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
+const audio = document.getElementById("audio");
+const uploadBtn = document.getElementById("upload");
 
-# ===================== ROUTES =====================
-@app.route("/")
-def index():
-    return render_template("index.html")
+// ====== Start Recording ======
+startBtn.onclick = async () => {
+  if (!category) {
+    alert("Please select an emotion first!");
+    return;
+  }
 
-@app.route("/upload", methods=["POST"])
-def upload():
-    try:
-        audio = request.files.get("audio")
-        category = request.form.get("category")
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    recorder.start();
 
-        if not audio:
-            return jsonify({"error": "No audio file"}), 400
-        if not category:
-            return jsonify({"error": "No category selected"}), 400
-        if category not in CATEGORIES:
-            return jsonify({"error": "Invalid category"}), 400
+    let chunks = [];
+    recorder.ondataavailable = e => chunks.push(e.data);
 
-        # ======= Generate filename =======
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{category}_help_{timestamp}"
+    recorder.onstop = () => {
+      audioBlob = new Blob(chunks, { type: "audio/wav" });
+      audio.src = URL.createObjectURL(audioBlob);
+    };
 
-        # ======= Upload directly to Cloudinary =======
-        result = cloudinary.uploader.upload(
-            audio,
-            resource_type="video",                # needed for audio
-            folder=f"assets/{category}",          # assets/category folder
-            public_id=filename
-        )
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    document.getElementById("status").innerText += " | Recording...";
+  } catch (err) {
+    alert("Error accessing microphone: " + err.message);
+    console.error(err);
+  }
+};
 
-        return jsonify({
-            "message": "Uploaded successfully",
-            "url": result.get("secure_url")
-        })
+// ====== Stop Recording ======
+stopBtn.onclick = () => {
+  if (recorder && recorder.state !== "inactive") {
+    recorder.stop();
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    document.getElementById("status").innerText =
+      "Selected emotion: " + category.toUpperCase() + " | Recording stopped";
+  }
+};
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+// ====== Upload Audio ======
+uploadBtn.onclick = async () => {
+  if (!audioBlob) {
+    alert("Please record audio first!");
+    return;
+  }
 
-# ===================== RUN APP =====================
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+  if (!category) {
+    alert("Please select an emotion!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("audio", audioBlob);
+  formData.append("category", category);
+
+  try {
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      alert("Upload failed: " + data.error);
+    } else {
+      alert("Audio uploaded successfully!\nCloudinary URL:\n" + data.url);
+      console.log("Cloudinary URL:", data.url);
+
+      // Reset audio after upload
+      audioBlob = null;
+      audio.src = "";
+      document.getElementById("status").innerText =
+        "Selected emotion: " + category.toUpperCase();
+    }
+  } catch (err) {
+    alert("Upload failed!");
+    console.error(err);
+  }
+};
