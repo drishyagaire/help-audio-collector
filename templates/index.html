@@ -8,29 +8,13 @@
 <h2>Help Audio Dataset Collection</h2>
 
 <p>
-  <h2>Help Audio Dataset Collection</h2>
-
-<p>
   🎯 <b>Instruction:</b> Please record yourself saying the following sentences <b>TWICE for each emotion</b>:<br><br>
   1. मलाई अहिले सहयोग चाहिएको छ।<br>
   2. कृपया यहाँबाट टाढा जानुहोस्।<br>
-  3. म यहाँ सुरक्षित महसुस गरिरहेको छैन।<br><br>
-  You must provide <b>at least 5 recordings for EACH category</b>.
+  3. म यहाँ सुरक्षित महसुस गरिरहेको छैन।<br>
 </p>
 
 <p>Select the emotion for saying the sentences:</p>
-
-<button onclick="setCategory('angry')">😠 Angry</button>
-<button onclick="setCategory('disgust')">🤢 Disgust</button>
-<button onclick="setCategory('fear')">😨 Fear</button>
-<button onclick="setCategory('happy')">😄 Happy</button>
-<button onclick="setCategory('sad')">😢 Sad</button>
-<button onclick="setCategory('neutral')">😐 Neutral</button>
-<button onclick="setCategory('surprise')">😲 Surprise</button>
-
-</p>
-
-<p>Select the emotion for saying <b>"HELP"</b>:</p>
 
 <button onclick="setCategory('angry')">😠 Angry</button>
 <button onclick="setCategory('disgust')">🤢 Disgust</button>
@@ -55,12 +39,6 @@
 
 <button id="upload">⬆ Upload Audio</button>
 
-<!-- ❌ REMOVE THIS (only for testing) -->
-<!-- <script>
-  alert("INLINE JS WORKS");
-</script> -->
-
-<!-- ✅ Keep only this -->
 <script src="{{ url_for('static', filename='recorder.js') }}"></script>
 
 </body>
