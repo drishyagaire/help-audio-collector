@@ -1,62 +1,60 @@
-alert("JS LOADED");
+from flask import Flask, render_template, request, jsonify
+import cloudinary
+import cloudinary.uploader
+from datetime import datetime
+import os
 
-let recorder;
-let audioBlob;
-let category = "";
+app = Flask(__name__)
 
-function setCategory(type) {
-  category = type;
-  document.getElementById("status").innerText =
-    "Selected category: " + type.toUpperCase();
-}
+# ===================== CLOUDINARY CONFIG =====================
+cloudinary.config(
+    cloud_name="df4nrz3qo",
+    api_key="198141117528798",
+    api_secret="2OplNhrRyiyVjLS62b7D3Wni07s"
+)
 
-const startBtn = document.getElementById("start");
-const stopBtn = document.getElementById("stop");
-const audio = document.getElementById("audio");
-const uploadBtn = document.getElementById("upload");
+# ===================== AUDIO CATEGORIES =====================
+CATEGORIES = ["angry", "disgust", "fear", "happy", "sad", "neutral", "surprise"]
 
-startBtn.onclick = async () => {
-  if (!category) {
-    alert("Please select Fearful or Normal first!");
-    return;
-  }
+# ===================== ROUTES =====================
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  recorder = new MediaRecorder(stream);
-  recorder.start();
+@app.route("/upload", methods=["POST"])
+def upload():
+    try:
+        audio = request.files.get("audio")
+        category = request.form.get("category")
 
-  let chunks = [];
-  recorder.ondataavailable = e => chunks.push(e.data);
-  recorder.onstop = () => {
-    audioBlob = new Blob(chunks, { type: "audio/wav" });
-    audio.src = URL.createObjectURL(audioBlob);
-  };
+        if not audio:
+            return jsonify({"error": "No audio file"}), 400
+        if not category:
+            return jsonify({"error": "No category selected"}), 400
+        if category not in CATEGORIES:
+            return jsonify({"error": "Invalid category"}), 400
 
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
-};
+        # ======= Generate filename =======
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{category}_help_{timestamp}"
 
-stopBtn.onclick = () => {
-  recorder.stop();
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-};
+        # ======= Upload directly to Cloudinary =======
+        result = cloudinary.uploader.upload(
+            audio,
+            resource_type="video",                # needed for audio
+            folder=f"assets/{category}",          # assets/category folder
+            public_id=filename
+        )
 
-uploadBtn.onclick = async () => {
-  if (!audioBlob) {
-    alert("Please record audio first!");
-    return;
-  }
+        return jsonify({
+            "message": "Uploaded successfully",
+            "url": result.get("secure_url")
+        })
 
-  const formData = new FormData();
-  formData.append("audio", audioBlob);
-  formData.append("category", category);
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-  await fetch("/upload", {
-    method: "POST",
-    body: formData
-  });
-
-  alert("Audio uploaded successfully!");
-};
-       
+# ===================== RUN APP =====================
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
