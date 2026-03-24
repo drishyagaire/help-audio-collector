@@ -1,143 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Help Audio Dataset Collection</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f0f8ff;
-      color: #333;
-      padding: 20px;
-    }
-
-    h2 {
-      color: #ff4500;
-      font-size: 2rem;
-    }
-
-    .instructions {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
-      padding: 15px;
-      margin: 15px auto;
-      max-width: 600px;
-      border-radius: 8px;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
-
-    button {
-      padding: 12px 25px;
-      margin: 10px;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.1);
-    }
-
-    .fearful {
-      background-color: #ff4c4c;
-      color: white;
-    }
-
-    .normal {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    #start, #stop, #upload {
-      background-color: #007bff;
-      color: white;
-    }
-
-    #start:disabled, #stop:disabled, #upload:disabled {
-      background-color: #b0c4de;
-      cursor: not-allowed;
-    }
-
-    audio {
-      margin-top: 15px;
-    }
-
-    #message {
-      font-weight: bold;
-      margin-top: 15px;
-      font-size: 1rem;
-      white-space: pre-line; /* allows line breaks */
-    }
-
-    .progress-container {
-      width: 80%;
-      max-width: 500px;
-      background-color: #ddd;
-      border-radius: 10px;
-      margin: 10px auto;
-      height: 25px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #4caf50;
-      border-radius: 10px;
-      text-align: center;
-      color: white;
-      line-height: 25px;
-      font-weight: bold;
-      transition: width 0.3s;
-    }
-  </style>
+  <title>Audio Collection Portal</title>
 </head>
 <body>
 
 <h2>Help Audio Dataset Collection</h2>
 
-<div class="instructions">
-  <p><b>Instructions:</b></p>
-  <ul style="text-align:left; max-width:500px; margin:auto;">
-    <li>Say <b>"HELP"</b> and <b>"Bachau"</b> <b>normally</b> for the Normal section.</li>
-    <li>Say <b>"HELP"</b> and <b>"Bachau"</b> <b>loudly with fear/emotion</b> for the Fearful section.</li>
-    <li>Record each section <b>at least 10 times</b> by clicking <b>Start → Stop → Upload</b> for each repetition.</li>
-    <li>You can record more than 10 if you want.</li>
-    <li>Make sure your microphone is allowed when prompted.</li>
-  </ul>
-</div>
+<p>
+  🎯 <b>Instruction:</b> Please record yourself saying <b>"HELP"</b> in each emotion.<br>
+  You must provide <b>at least 5 recordings for EACH category</b>.
+</p>
 
-<p>Select how you will say your words:</p>
-<button class="fearful" onclick="setCategory('fearful')">🔴 Fearful / Loud</button>
-<button class="normal" onclick="setCategory('normal')">🟢 Normal</button>
+<p>Select the emotion for saying <b>"HELP"</b>:</p>
 
-<p id="status"></p>
+<button onclick="setCategory('angry')">😠 Angry</button>
+<button onclick="setCategory('disgust')">🤢 Disgust</button>
+<button onclick="setCategory('fear')">😨 Fear</button>
+<button onclick="setCategory('happy')">😄 Happy</button>
+<button onclick="setCategory('sad')">😢 Sad</button>
+<button onclick="setCategory('neutral')">😐 Neutral</button>
+<button onclick="setCategory('surprise')">😲 Surprise</button>
 
-<!-- Progress bar -->
-<div class="progress-container">
-  <div id="progress-bar" class="progress-bar">0 / 10</div>
-</div>
+<p id="status" style="margin-top:10px; font-weight:bold;"></p>
 
 <hr>
 
 <button id="start">🎙 Start Recording</button>
 <button id="stop" disabled>⏹ Stop Recording</button>
+
 <br><br>
 
 <audio id="audio" controls></audio>
+
 <br><br>
 
 <button id="upload">⬆ Upload Audio</button>
 
-<!-- Message area -->
-<p id="message"></p>
+<!-- ❌ REMOVE THIS (only for testing) -->
+<!-- <script>
+  alert("INLINE JS WORKS");
+</script> -->
 
-<!-- JS file -->
+<!-- ✅ Keep only this -->
 <script src="{{ url_for('static', filename='recorder.js') }}"></script>
 
 </body>
 </html>
-
